@@ -1,0 +1,42 @@
+version: "3"
+services:
+
+  pygraphql_flask:
+    container_name: pygraphql_flask
+    build: .
+    ports: ['5000:5000']
+    volumes: ['.:/usr/src/app']
+    restart: always
+    environment:
+      ENV: DEVELOPMENT
+      DB_USERNAME: username
+      DB_PASSWORD: passwword
+      DB_DATABASE: pygraphql
+      DB_HOST: pygraphql_mysql
+    links:
+      - pygraphql_mysql
+
+  pygraphql_mysql:
+    container_name: pygraphql_mysql
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root-password
+      MYSQL_USER: username
+      MYSQL_PASSWORD: passwword
+      MYSQL_DATABASE: pygraphql
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - ./dbdata:/var/lib/mysql
+
+  database_admin:
+    image: phpmyadmin/phpmyadmin:latest
+    links:
+      - pygraphql_mysql
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
