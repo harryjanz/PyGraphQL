@@ -23,7 +23,15 @@ class LoginUser(Mutation):
         password = String(description="User's password")
 
     def mutate(self, info, email, password):
+
         user = UserModel.query.filter_by(email=email).scalar()
+
+        if not user.is_verified:
+            raise Exception('User not verified')
+
+        if not user.is_active:
+            raise Exception('User not active')
+
         if user and user._verify_password(password):
             user.last_logged_in = datetime.datetime.now()
             try:
